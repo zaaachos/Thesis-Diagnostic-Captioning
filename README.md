@@ -5,3 +5,7 @@ During my senior year of university, I conducted a research on Diagnostic Captio
 
 ## Code and Additional files
 To be added..
+
+
+## License
+[MIT License](https://github.com/zaaachos/bsc-thesis-in-diagnostic-captioning/blob/main/LICENSE)
