@@ -26,6 +26,29 @@ import pickle
 from keras_cv_attention_models import cotnet
 
 
+def load_encoded_vecs(self, filename):
+    """
+    :param filename: the whole path of npy file
+    :return: encoded_vectors from filename
+    """
+    with open(filename, 'rb') as f:
+        print("Image Encoded Vectors loaded from directory path:", filename)
+        return pickle.load(f)
+
+
+def save_encoded_vecs(self, image_vecs, output_path, filename):
+    """
+    Function which helps us to save the encoded images into a pickle file
+    :param image_vecs: the encoded images vectors that we extracted using the encode_images function
+    :param output_path: the output path where we want to save our image embeddings
+    :param filename: a name we want to use for our npy file (ex. densenet201_image_vecs). It's not necessary to write '.pkl' at the end!
+    """
+    path = output_path + filename + '.pkl'
+    with open(path, 'wb') as f:
+        pickle.dump(image_vecs, f, pickle.HIGHEST_PROTOCOL)
+    print("Image Encoded Vectors stored in:", path)
+
+
 class ImageEncoder:
 
     def __init__(self, encoder, images_dir_path, weights='imagenet'):
