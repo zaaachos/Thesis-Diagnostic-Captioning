@@ -1,49 +1,29 @@
-import pickle
-from tqdm import tqdm
-import numpy as np
 import tensorflow
 
-from tensorflow.keras.preprocessing import image as img
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Flatten, Dropout, Dense, Conv2D, MaxPooling2D, BatchNormalization
-from tensorflow.keras import Sequential
-from tensorflow.keras.applications.inception_resnet_v2 import preprocess_input as inceptionresnet_preprocess
-from tensorflow.keras.applications.resnet_v2 import preprocess_input as resnet_preprocess
-from tensorflow.keras.applications.efficientnet import preprocess_input as efficient_preprocess
-from tensorflow.keras.applications.densenet import preprocess_input as dense_preprocess
-from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2 as incres
-from tensorflow.keras.applications.resnet_v2 import ResNet50V2 as rn50v2
-from tensorflow.keras.applications.efficientnet import EfficientNetB7 as enb7
-from tensorflow.keras.applications.efficientnet import EfficientNetB5 as enb5
-from tensorflow.keras.applications.efficientnet import EfficientNetB0
-from tensorflow.keras.applications.densenet import DenseNet169 as dn169
-from tensorflow.keras.applications.densenet import DenseNet121 as dn121
 from tensorflow.keras.applications.densenet import DenseNet201 as dn201
+from tensorflow.keras.applications.densenet import DenseNet121 as dn121
+from tensorflow.keras.applications.densenet import DenseNet169 as dn169
+from tensorflow.keras.applications.efficientnet import EfficientNetB0
+from tensorflow.keras.applications.efficientnet import EfficientNetB5 as enb5
+from tensorflow.keras.applications.efficientnet import EfficientNetB7 as enb7
+from tensorflow.keras.applications.resnet_v2 import ResNet50V2 as rn50v2
+from tensorflow.keras.applications.inception_resnet_v2 import InceptionResNetV2 as incres
 
-# from keras_cv_attention_models import cotnet
+from tensorflow.keras.applications.densenet import preprocess_input as dense_preprocess
+from tensorflow.keras.applications.efficientnet import preprocess_input as efficient_preprocess
+from tensorflow.keras.applications.resnet_v2 import preprocess_input as resnet_preprocess
+from tensorflow.keras.applications.inception_resnet_v2 import preprocess_input as inceptionresnet_preprocess
 
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Flatten, Dropout, Dense, Conv2D, MaxPooling2D, BatchNormalization
+from tensorflow.keras.models import Model
+from tensorflow.keras.preprocessing import image as img
+import os
+import numpy as np
+from tqdm import tqdm
+import pickle
 
-def save_encoded_vecs(image_vecs, output_path, filename):
-    """
-    Function which helps us to save the encoded images into a pickle file
-    :param image_vecs: the encoded images vectors that we extracted using the encode_images function
-    :param output_path: the output path where we want to save our image embeddings
-    :param filename: a name we want to use for our npy file (ex. densenet201_image_vecs). It's not necessary to write '.pkl' at the end!
-    """
-    path = output_path + filename + '.pkl'
-    with open(path, 'wb') as f:
-        pickle.dump(image_vecs, f, pickle.HIGHEST_PROTOCOL)
-    print("Image Encoded Vectors stored in:", path)
-
-
-def load_encoded_vecs(filename):
-    """
-    :param filename: the whole path of npy file
-    :return: encoded_vectors from filename
-    """
-    with open(filename, 'rb') as f:
-        print("Image Encoded Vectors loaded from directory path:", filename)
-        return pickle.load(f)
+from keras_cv_attention_models import cotnet
 
 
 class ImageEncoder:
