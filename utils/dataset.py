@@ -1,4 +1,3 @@
-from operator import imod
 from sklearn.model_selection import KFold
 from nltk.tokenize import word_tokenize
 import os
@@ -9,13 +8,12 @@ import random
 import nltk
 import pickle
 
-from torch import threshold
-from text_handler import TextHandler
+from utils.text_handler import TextHandler
 from tqdm import tqdm
 
-from vocabulary import Vocabulary
+from utils.vocabulary import Vocabulary
 from utils.jsonfy import *
-from models.image_encoder import load_encoded_vecs, save_encoded_vecs
+from modules.image_encoder import load_encoded_vecs, save_encoded_vecs
 
 
 nltk.download("punkt", quiet=True)
@@ -24,29 +22,13 @@ class Dataset:
     def __init__(
         self,
         image_vectors: dict,
-        captions_df: pd.DataFrame,
+        captions_data: dict,
         clear_long_captions: bool = True,
     ):
         self.image_vectors = image_vectors
-        self.caption_dataset = captions_df
+        self.captions_data = captions_data
         self.clear_long_captions = clear_long_captions
         self.text_handler = TextHandler()
-        (
-            self.train,
-            self.train_captions_prepro,
-            self.dev,
-            self.dev_captions,
-            self.test,
-            self.test_captions,
-        ) = self.build_dataset()
-
-        print(f"Train: {len(self.train)},  {len(self.train_captions_prepro)}")
-        print(f"Dev: {len(self.dev)},  {len(self.dev_captions)}")
-        print(f"Train: {len(self.test)},  {len(self.test_captions)}")
-
-        self.vocab, self.tokenizer, self.word2idx, self.idx2word = self.build_vocab(
-            training_captions=self.train_captions_prepro
-        )
 
     def delete_long_captions(self, data: dict, threshold=80):
         filtered_data = {}
@@ -59,8 +41,8 @@ class Dataset:
         return filtered_data
 
     def build_splits(self):
-
-        image_ids = self.caption_dataset.ID.to_list()
+    
+        image_ids = list( self.captions_data.keys() )
         np.random.shuffle(image_ids)
 
         test_split_threshold = int(0.15 * len(image_ids))
@@ -77,21 +59,19 @@ class Dataset:
 
         return train, dev, test
 
-    def __get_image_vectors(self, keys) -> dict:
+    def __get_image_vectors(self, keys):
 
         return {
             k: v
             for k, v in tqdm(
-                self.image_vectors.items(), desc="Fetching image embeddings from the"
+                self.image_vectors.items(), desc="Fetching image embeddings.."
             )
             if k in keys
         }
 
-    def __get_captions(self, _ids: list) -> list():
-        return self.caption_dataset[
-            self.caption_dataset["ID"].isin(_ids)
-        ].caption.to_list()
-
+    def __get_captions(self, _ids: list):
+        return { key:value for key, value in self.captions_data.items() if key in _ids}
+ 
     def build_pseudo_cv_splits(self):
         image_ids = self.caption_dataset.ID.to_list()
         np.random.shuffle(image_ids)
@@ -106,138 +86,100 @@ class Dataset:
 
         return TRAIN_IDS, TEST_IDS
 
-    def build_cv_dataset(self, train_ids, dev_ids):
-
-        train_df = self.caption_dataset[self.caption_dataset["ID"].isin(
-            train_ids)]
-        if self.clear_long_captions:
-            print(
-                "Deleting some outliers. Train dataset before cleaning:", len(
-                    train_df)
-            )
-            train_dict = dict(
-                zip(train_df.ID.to_list(), train_df.caption.to_list()))
-            train_dict_filtered = self.delete_long_captions(train_dict)
-            print(
-                f"We deleted {len(train_df)-len(train_dict_filtered)} outliers!")
-
-        # train =
-        dev = {
-            k: v
-            for k, v in tqdm(
-                self.image_dataset.items(), desc="Fetching image embeddings for dev"
-            )
-            if k in dev_ids
-        }
-
-        train_data = self.caption_dataset[
-            self.caption_dataset["ID"].isin(list(train.keys()))
-        ]
-
-        dev_dataset = self.caption_dataset[self.caption_dataset["ID"].isin(
-            dev_ids)]
-
-        training_captions = [
-            self.text_handler.separate_sequences(caption)
-            for caption in train_data.caption.to_list()
-        ]
-
-        dev_captions = dev_dataset.caption.to_list()
-
-        return train, training_captions, dev, dev_captions
-
-    def build_dataset(self):
-        train_ids, dev_ids, test_ids = self.build_splits()
-
-        train_df = self.caption_dataset[self.caption_dataset["ID"].isin(
-            train_ids)]
-        if self.clear_long_captions:
-            print(
-                "Deleting some outliers. Train dataset before cleaning:", len(
-                    train_df)
-            )
-            train_dict = dict(
-                zip(train_df.ID.to_list(), train_df.caption.to_list()))
-            train_dict_filtered = self.delete_long_captions(train_dict)
-            print(
-                f"We deleted {len(train_df)-len(train_dict_filtered)} outliers!")
-
-        train = self.__get_image_vectors(train_dict_filtered.keys())
-        dev = self.__get_image_vectors(dev_ids)
-        test = self.__get_image_vectors(test_ids)
-
-        train_captions = self.__get_captions(list(train.keys()))
-        dev_captions = self.__get_captions(dev_ids)
-        test_captions = self.__get_captions(test_ids)
-
-        train_captions_prepro = self.text_handler.preprocess_all(
-            train_captions)
-
-        return (
-            train,
-            train_captions_prepro,
-            dev,
-            dev_captions,
-            test,
-            test_captions,
-        )
-
     def build_vocab(self, training_captions: list, threshold: int = 3):
         vocab = Vocabulary(texts=training_captions, threshold=threshold)
         tokenizer, word2idx, idx2word = vocab.build_vocab()
         return vocab, tokenizer, word2idx, idx2word
+    
+    
+    
+class IuXrayDataset(Dataset):
+    def __init__(
+            self,
+            image_vectors: dict,
+            captions_data: dict,
+            tags_data: dict):
+        self.image_vectors, self.captions_data, self.text_handler = super().__init__(image_vectors=image_vectors, captions_data=captions_data, clear_long_captions=False)
+        self.tags_data = tags_data
+        self.train_dataset, self.dev_dataset, self.test_dataset = self.build_dataset()
 
-    def load_encoded_vecs(filename):
-        with open(filename, "rb") as f:
-            print("Image Encoded Vectors loaded from directory path:", filename)
-            return pickle.load(f)
+        print(f"Train: patients={len(self.train_dataset[0])}, captions={len(self.train_dataset[1])}, tags={len(self.train_dataset[2])}")
+        print(f"Dev: patients={len(self.dev_dataset[0])}, captions={len(self.dev_dataset[1])}, tags={len(self.dev_dataset[2])}")
+        print(f"Test: patients={len(self.test_dataset[0])}, captions={len(self.test_dataset[1])}, tags={len(self.test_dataset[2])}")
+
+        self.vocab, self.tokenizer, self.word2idx, self.idx2word = super().build_vocab(
+            training_captions=list(self.train_dataset[1].values())
+        )
+        
+    def __get_tags(self, _ids: list):
+        return { key:value for key, value in self.tags_data.items() if key in _ids}
+        
+    def build_dataset(self):
+        train_ids, dev_ids, test_ids = super().build_splits()
+
+        train_images = super().__get_image_vectors(train_ids)
+        dev_images = super().__get_image_vectors(dev_ids)
+        test_images = super().__get_image_vectors(test_ids)
+
+        train_captions = super().__get_captions(train_ids)
+        dev_captions = super().__get_captions(dev_ids)
+        test_captions = super().__get_captions(test_ids)
+
+        train_captions_prepro = self.text_handler.preprocess_all(
+            list(train_captions.values()))
+            
+        train_captions_prepro = dict( zip( train_ids, train_captions_prepro ) )
+            
+        train_tags = self.__get_tags(train_ids)
+        dev_tags = self.__get_tags(dev_ids)
+        test_tags = self.__get_tags(test_ids)
+                
+        train_dataset = [train_images, train_captions_prepro, train_tags]
+        dev_dataset = [dev_images, dev_captions, dev_tags]
+        test_dataset = [test_images, test_captions, test_tags]
 
 
-if __name__ == "__main__":
+        return train_dataset, dev_dataset, test_dataset
+    
 
-    dataset_path = (
-        "/home/cave-of-time/panthro/dataset/ImageCLEF2022/Imageclef2022_dataset_all.csv"
-    )
-    train_image_vectors = (
-        "/home/cave-of-time/panthro/image_encoded_vecs/densenet121_train.pkl"
-    )
-    dev_image_vectors = (
-        "/home/cave-of-time/panthro/image_encoded_vecs/densenet121_valid.pkl"
-    )
 
-    train_vecs, dev_vecs = load_encoded_vecs(train_image_vectors), load_encoded_vecs(
-        dev_image_vectors
-    )
-    all_image_vecs = dict(train_vecs, **dev_vecs)
+class ImageCLEFDataset(Dataset):
+    def __init__(
+            self,
+            image_vectors: dict,
+            captions_data: dict):
+        self.image_vectors, self.captions_data, self.text_handler = super().__init__(image_vectors=image_vectors, captions_data=captions_data, clear_long_captions=False)
+        self.train_dataset, self.dev_dataset, self.test_dataset = self.build_dataset()
 
-    DATASET = pd.read_csv(dataset_path, sep="\t")
+        print(f"Train: patients={len(self.train_dataset[0])}, captions={len(self.train_dataset[1])}, tags={len(self.train_dataset[2])}")
+        print(f"Dev: patients={len(self.dev_dataset[0])}, captions={len(self.dev_dataset[1])}, tags={len(self.dev_dataset[2])}")
+        print(f"Test: patients={len(self.test_dataset[0])}, captions={len(self.test_dataset[1])}, tags={len(self.test_dataset[2])}")
 
-    dataset = Dataset(image_vectors=all_image_vecs, captions_df=DATASET)
+        self.vocab, self.tokenizer, self.word2idx, self.idx2word = super().build_vocab(
+            training_captions=list(self.train_dataset[1].values())
+        )
+        
+    def build_dataset(self):
+        train_ids, dev_ids, test_ids = super().build_splits()
 
-    ANNOTATIONS_FOLDER = "/home/cave-of-time/panthro/dataset/ImageCLEF2022/annotations"
+        train_images = super().__get_image_vectors(train_ids)
+        dev_images = super().__get_image_vectors(dev_ids)
+        test_images = super().__get_image_vectors(test_ids)
 
-    TRAIN_DF = get_df(DATASET, list(dataset.train.keys()))
-    DEV_DF = get_df(DATASET, list(dataset.dev.keys()))
-    TEST_DF = get_df(DATASET, list(dataset.test.keys()))
+        train_captions = super().__get_captions(train_ids)
+        dev_captions = super().__get_captions(dev_ids)
+        test_captions = super().__get_captions(test_ids)
 
-    dictionary_list = {
-        "train": dictify_r2gen(TRAIN_DF, "train"),
-        "val": dictify_r2gen(DEV_DF, "val"),
-        "test": dictify_r2gen(TEST_DF, "test"),
-    }
-    json_data = json.dumps(dictionary_list)
-    data_folder = "/home/cave-of-time/panthro/dataset/dataset/"
-    with open(
-        os.path.join(ANNOTATIONS_FOLDER,
-                     "imageclef2022_train_val_annotations.json"),
-        "w",
-    ) as outfile:
-        outfile.write(json_data)
-    # TRAIN_IDS, DEV_IDS = dataset.build_pseudo_cv_splits()
-    # cv = 5
-    # for i in range(cv):
-    #     train, training_captions, dev, dev_captions = dataset.build_cv_dataset(
-    #         TRAIN_IDS[i], DEV_IDS[i]
-    #     )
+        train_captions_prepro = self.text_handler.preprocess_all(
+            list(train_captions.values()))
+            
+        train_captions_prepro = dict( zip( train_ids, train_captions_prepro ) )
+                
+        train_dataset = [train_images, train_captions_prepro]
+        dev_dataset = [dev_images, dev_captions]
+        test_dataset = [test_images, test_captions]
 
-    #     break
+
+        return train_dataset, dev_dataset, test_dataset
+
+
