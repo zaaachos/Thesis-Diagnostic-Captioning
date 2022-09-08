@@ -1,0 +1,3 @@
+[submodule "R2GenCMN"]
+	path = R2GenCMN
+	url = https://github.com/zhjohnchan/R2GenCMN
