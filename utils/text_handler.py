@@ -5,10 +5,13 @@ import nltk
 import pandas as pd
 import tensorflow
 from tensorflow.keras.preprocessing.text import Tokenizer
+import inflect
 
-from utils.vocabulary import Vocabulary
+# from utils.vocabulary import Vocabulary
 
 nltk.download("punkt")
+
+NUMBER_TO_TEXT = inflect.engine()
 
 
 class TextHandler:
@@ -22,6 +25,28 @@ class TextHandler:
 
     def get_basic_token(self):
         return self.__start_token, self.__end_token, self.__seq_sep
+    
+    def remove_punctuations(self, text):
+        return re.sub(r"[-()\"#/@;:<>{}`+=~|!.?$%^&*'/+\[\]_]+", "", text)
+    
+    def num2words(self, text):
+        sentences = text.split('.')
+        new_seqs = list()
+        for s in sentences:
+            tokens = s.split()
+            new_tokens = list()
+            for token in tokens:
+                try:
+                    number = int(token)
+                    word = NUMBER_TO_TEXT.number_to_words(number)
+                except:
+                    word = token
+                new_tokens.append(word)
+            new_seqs.append(' '.join(new_tokens))
+
+        modified_text = '. '.join(new_seqs)
+        return modified_text
+            
 
     def __preprocess_text(self, text):
         text = re.sub(r"won\'t", "will not", text)
@@ -36,18 +61,11 @@ class TextHandler:
         text = re.sub(r"\'m", " am", text)
         text = re.sub("&", "and", text)
         text = re.sub("@", "at", text)
-        text = re.sub("0", "zero", text)
-        text = re.sub("1", "one", text)
-        text = re.sub("2", "two", text)
-        text = re.sub("3", "three", text)
-        text = re.sub("4", "four", text)
-        text = re.sub("5", "five", text)
-        text = re.sub("6", "six", text)
-        text = re.sub("7", "seven", text)
-        text = re.sub("8", "eight", text)
-        text = re.sub("9", "nine", text)
         text = re.sub("year old", "", text)
         text = re.sub("yearold", "", text)
+        
+        text = self.num2words(text)
+        
         if self.__clean:
             text = self.__clean_text(text)
 
@@ -70,8 +88,6 @@ class TextHandler:
 
         regex = r"http\S+"
         text = re.sub(regex, "", text)
-        # TODO check for period sign!
-        text = re.sub(r"[-()\"#/@;:<>{}`+=~|!?$%^&*'/+\[\]_]+", "", text)
 
         return text
 
@@ -80,7 +96,8 @@ class TextHandler:
         if seq_sep is not None:
             sequences = nltk.tokenize.sent_tokenize(text)
             sequences = [s for s in sequences if len(s) > 5]
-            text = self.seq_sep.join(sequences)
+            text = seq_sep.join(sequences)
+            text = self.remove_punctuations(text)
         return start + " " + text + " " + end
 
     def preprocess_all(self, texts):
