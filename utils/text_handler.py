@@ -7,7 +7,7 @@ import tensorflow
 from tensorflow.keras.preprocessing.text import Tokenizer
 import inflect
 
-# from utils.vocabulary import Vocabulary
+from utils.vocabulary import Vocabulary
 
 nltk.download("punkt")
 
