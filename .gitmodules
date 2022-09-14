@@ -1,9 +1,9 @@
 [submodule "R2GenCMN"]
-	path = R2GenCMN
+	path = SOTA_models/R2GenCMN
 	url = https://github.com/zhjohnchan/R2GenCMN
 [submodule "R2Gen"]
-	path = R2Gen
+	path = SOTA_models/R2Gen
 	url = https://github.com/zhjohnchan/R2Gen
 [submodule "VisualGPT"]
-	path = VisualGPT
+	path = SOTA_models/VisualGPT
 	url = https://github.com/Vision-CAIR/VisualGPT
