@@ -1,0 +1,1 @@
+## Three Transformer-based architectures that were used throughout this thesis research, with state-of-the-art performance in several medical datasets.
