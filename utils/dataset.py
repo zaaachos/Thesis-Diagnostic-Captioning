@@ -59,7 +59,7 @@ class Dataset:
 
         return train, dev, test
 
-    def __get_image_vectors(self, keys):
+    def get_image_vectors(self, keys):
 
         return {
             k: v
@@ -69,7 +69,7 @@ class Dataset:
             if k in keys
         }
 
-    def __get_captions(self, _ids: list):
+    def get_captions(self, _ids: list):
         return { key:value for key, value in self.captions_data.items() if key in _ids}
  
     def build_pseudo_cv_splits(self):
@@ -99,17 +99,23 @@ class IuXrayDataset(Dataset):
             image_vectors: dict,
             captions_data: dict,
             tags_data: dict):
-        self.image_vectors, self.captions_data, self.text_handler = super().__init__(image_vectors=image_vectors, captions_data=captions_data, clear_long_captions=False)
+        super().__init__(image_vectors=image_vectors, captions_data=captions_data, clear_long_captions=False)
         self.tags_data = tags_data
         self.train_dataset, self.dev_dataset, self.test_dataset = self.build_dataset()
-
-        print(f"Train: patients={len(self.train_dataset[0])}, captions={len(self.train_dataset[1])}, tags={len(self.train_dataset[2])}")
-        print(f"Dev: patients={len(self.dev_dataset[0])}, captions={len(self.dev_dataset[1])}, tags={len(self.dev_dataset[2])}")
-        print(f"Test: patients={len(self.test_dataset[0])}, captions={len(self.test_dataset[1])}, tags={len(self.test_dataset[2])}")
-
-        self.vocab, self.tokenizer, self.word2idx, self.idx2word = super().build_vocab(
-            training_captions=list(self.train_dataset[1].values())
-        )
+        
+        self.vocab, self.tokenizer, self.word2idx, self.idx2word = super().build_vocab(training_captions=list(self.train_dataset[1].values()))
+    
+    def __str__(self):
+        text = f"Train: patients={len(self.train_dataset[0])}, captions={len(self.train_dataset[1])}, tags={len(self.train_dataset[2])}"
+        text += f"\nDev: patients={len(self.dev_dataset[0])}, captions={len(self.dev_dataset[1])}, tags={len(self.dev_dataset[2])}"
+        text += f"\nTest: patients={len(self.test_dataset[0])}, captions={len(self.test_dataset[1])}, tags={len(self.test_dataset[2])}"
+        return text
+    
+    def get_splits_sets(self):
+        return self.train_dataset, self.dev_dataset, self.test_dataset
+    
+    def get_tokenizer_utils(self):
+        return self.vocab, self.tokenizer, self.word2idx, self.idx2word
         
     def __get_tags(self, _ids: list):
         return { key:value for key, value in self.tags_data.items() if key in _ids}
@@ -117,13 +123,13 @@ class IuXrayDataset(Dataset):
     def build_dataset(self):
         train_ids, dev_ids, test_ids = super().build_splits()
 
-        train_images = super().__get_image_vectors(train_ids)
-        dev_images = super().__get_image_vectors(dev_ids)
-        test_images = super().__get_image_vectors(test_ids)
+        train_images = super().get_image_vectors(train_ids)
+        dev_images = super().get_image_vectors(dev_ids)
+        test_images = super().get_image_vectors(test_ids)
 
-        train_captions = super().__get_captions(train_ids)
-        dev_captions = super().__get_captions(dev_ids)
-        test_captions = super().__get_captions(test_ids)
+        train_captions = super().get_captions(train_ids)
+        dev_captions = super().get_captions(dev_ids)
+        test_captions = super().get_captions(test_ids)
 
         train_captions_prepro = self.text_handler.preprocess_all(
             list(train_captions.values()))
@@ -148,34 +154,49 @@ class ImageCLEFDataset(Dataset):
             self,
             image_vectors: dict,
             captions_data: dict):
-        self.image_vectors, self.captions_data, self.text_handler = super().__init__(image_vectors=image_vectors, captions_data=captions_data, clear_long_captions=False)
+        super().__init__(image_vectors=image_vectors, captions_data=captions_data, clear_long_captions=True)
         self.train_dataset, self.dev_dataset, self.test_dataset = self.build_dataset()
-
-        print(f"Train: patients={len(self.train_dataset[0])}, captions={len(self.train_dataset[1])}, tags={len(self.train_dataset[2])}")
-        print(f"Dev: patients={len(self.dev_dataset[0])}, captions={len(self.dev_dataset[1])}, tags={len(self.dev_dataset[2])}")
-        print(f"Test: patients={len(self.test_dataset[0])}, captions={len(self.test_dataset[1])}, tags={len(self.test_dataset[2])}")
-
-        self.vocab, self.tokenizer, self.word2idx, self.idx2word = super().build_vocab(
-            training_captions=list(self.train_dataset[1].values())
-        )
+        
+        self.vocab, self.tokenizer, self.word2idx, self.idx2word = super().build_vocab(training_captions=list(self.train_dataset[1].values()))
+        
+    def __str__(self):
+        text = f"Train: patients={len(self.train_dataset[0])}, captions={len(self.train_dataset[1])}"
+        text += f"\nDev: patients={len(self.dev_dataset[0])}, captions={len(self.dev_dataset[1])}"
+        text += f"\nTest: patients={len(self.test_dataset[0])}, captions={len(self.test_dataset[1])}"
+        return text
+    
+    def get_splits_sets(self):
+        return self.train_dataset, self.dev_dataset, self.test_dataset
+    
+    def get_tokenizer_utils(self):
+        return self.vocab, self.tokenizer, self.word2idx, self.idx2word
         
     def build_dataset(self):
         train_ids, dev_ids, test_ids = super().build_splits()
 
-        train_images = super().__get_image_vectors(train_ids)
-        dev_images = super().__get_image_vectors(dev_ids)
-        test_images = super().__get_image_vectors(test_ids)
+        train_images = super().get_image_vectors(train_ids)
+        dev_images = super().get_image_vectors(dev_ids)
+        test_images = super().get_image_vectors(test_ids)
 
-        train_captions = super().__get_captions(train_ids)
-        dev_captions = super().__get_captions(dev_ids)
-        test_captions = super().__get_captions(test_ids)
-
+        train_captions = super().get_captions(train_ids)
+        dev_captions = super().get_captions(dev_ids)
+        test_captions = super().get_captions(test_ids)
+        
+        
+        train_modified_captions = super().delete_long_captions(data=train_captions)
+        
+        train_new_ids = list(train_modified_captions.keys())
+        
+        train_new_images = {
+            key:image_vector for key, image_vector in train_images.items() if key in train_new_ids
+        }
+        
         train_captions_prepro = self.text_handler.preprocess_all(
-            list(train_captions.values()))
+            list(train_modified_captions.values()))
             
-        train_captions_prepro = dict( zip( train_ids, train_captions_prepro ) )
+        train_captions_prepro = dict( zip( train_new_ids, train_captions_prepro ) )
                 
-        train_dataset = [train_images, train_captions_prepro]
+        train_dataset = [train_new_images, train_captions_prepro]
         dev_dataset = [dev_images, dev_captions]
         test_dataset = [test_images, test_captions]
 

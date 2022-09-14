@@ -36,8 +36,6 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
 import pickle 
 
-
-
 # this class is based on the Show and Tell model.
 class CNN_RNN:
     def __init__(
@@ -109,6 +107,7 @@ class CNN_RNN:
         
         
         values = list(tags.values())
+        print('build_multimodal_encoder', len(values))
         _tags = []
         max_sequence_tags = []
         for i in range(len(values)):
@@ -123,8 +122,10 @@ class CNN_RNN:
         tag_patient_pair, _, word_index = self.__tokenize_tags(tags, max_tags, max_sequence_length)
     
         embedding_dim = fasttext_embed.shape[1]
-        embedding_matrix = self.__make_multimodal_weights(fasttext_embed, fasttext_word_to_index, max_tags, embedding_dim, word_index)
+        print(embedding_dim, max_tags, max_sequence_length, self.max_length)
         
+        embedding_matrix = self.__make_multimodal_weights(fasttext_embed, fasttext_word_to_index, max_tags, embedding_dim, word_index)
+        print(embedding_matrix)
         
         self.tag_encoder = TagEncoder(
                 pretrained=True,
@@ -141,11 +142,12 @@ class CNN_RNN:
 
     def __make_imageclef_model(self, input_shape, optimizer):
         # images
-        input_image1 = Input(shape=input_shape)
+        input_image1 = Input(shape=input_shape, name='Input image')
         output_image1 = self.encoder.encode_(input_image1)
+        output_image1 = RepeatVector(self.max_length)(output_image1)
 
         # embeddings
-        input2 = Input(shape=(self.max_length,))
+        input2 = Input(shape=(self.max_length,), name='Input caption words')
         output2 = self.embedding.get_embedding(input2)
 
         # decoder
@@ -229,6 +231,7 @@ class CNN_RNN:
 
         # integer encode the description
         seq = self.tokenizer.texts_to_sequences([caption])[0]
+        logging.info(seq)
         # split one sequence into multiple X,y pairs
         for i in range(1, len(seq)):
             # select
@@ -237,6 +240,7 @@ class CNN_RNN:
             in_seq = tensorflow.keras.preprocessing.sequence.pad_sequences(
                 [in_seq], maxlen=self.max_length
             )[0]
+            
             # encode output sequence
             out_seq = tensorflow.keras.utils.to_categorical(
                 [out_seq], num_classes=self.vocab_size
@@ -437,15 +441,12 @@ class CNN_RNN:
             verbose=verbose,
             callbacks=cs,
         )
-
-        saved_models_path = (
-            "/home/cave-of-time/panthro/dataset/iu_xray/saved_models/"
-        )
-        model.save(saved_models_path + model_name + ".h5")
+        
+        model.save(model_name + ".h5")
         return model
 
     
-    def evaluate_ensemble_model(self, models, test_captions, test_images, test_tags, dataset:str='iuxray', ensemble_method: str = 'AP'):
+    def evaluate_ensemble_model(self, models, test_captions, test_images, test_tags, dataset:str='iu_xray', ensemble_method: str = 'AP'):
         gold, predicted = {}, {}
         
         gs = GreedySearch(start_token=self.start_token, end_token=self.end_token, max_length=self.max_length,
@@ -467,13 +468,13 @@ class CNN_RNN:
 
         return gold, predicted
 
-    def evaluate_model(self, model, test_captions, test_images, test_tags, eval_dataset:str='iuxray', evaluator_choice: str = 'beam_10'):
+    def evaluate_model(self, model, test_captions, test_images, test_tags, eval_dataset:str='iu_xray', evaluator_choice: str = 'beam_10'):
         gold, predicted = {}, {}
         if evaluator_choice.split('_')[0] == 'beam':
             bs = BeamSearch(start_token=self.start_token, end_token=self.end_token, max_length=self.max_length,
                             tokenizer=self.tokenizer, idx_to_word=self.idx2word, word_to_idx=self.word2idx, beam_index= int(evaluator_choice.split('_')[1]) )
-            for key in tqdm(test_images):
-                if eval_dataset == 'iuxray':
+            for key in tqdm(test_images, desc='Evaluating model..'):
+                if eval_dataset == 'iu_xray':
                     caption = bs.beam_search_predict(
                         model, test_images[key], test_tags[key], dataset=eval_dataset, multi_modal=self.multi_modal)
                 else:
@@ -485,8 +486,8 @@ class CNN_RNN:
         else:
             gs = GreedySearch(start_token=self.start_token, end_token=self.end_token, max_length=self.max_length,
                             tokenizer=self.tokenizer, idx_to_word=self.idx2word, word_to_idx=self.word2idx)
-            for key in tqdm(test_images):
-                if eval_dataset == 'iuxray':
+            for key in tqdm(test_images, desc='Evaluating model..'):
+                if eval_dataset == 'iu_xray':
                     caption = gs.greedy_search_predict(
                         model, test_images[key], tag=test_tags[key], dataset=eval_dataset, multi_modal=self.multi_modal)
                 else:

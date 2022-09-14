@@ -57,7 +57,7 @@ class DiagnosticCaptioning:
     def parse_agrs(self):
 
         # Data loader settings
-        self.parser.add_argument("--dataset", type=str, default="iu_xray", choices=["iu_xray", "imageclef"], help="the dataset to be used.")
+        self.parser.add_argument("--dataset", type=str, default="imageclef", choices=["iu_xray", "imageclef"], help="the dataset to be used.")
 
         # Employing model
         self.parser.add_argument("--model_choice", type=str, default="cnn_rnn", choices=["cnn_rnn", "knn"], help="Which model to employ for testing.")
@@ -125,13 +125,35 @@ class DiagnosticCaptioning:
         image_vecs = load_encoded_vecs(image_encoded_vectors_path)
         return image_vecs, captions, tags
     
+    def __load_imageclef_data(self):
+        imageclef_data_path = os.path.join(DATASET_PATH, 'imageCLEF')
+        print(imageclef_data_path)
+        imageclef_image_captions_pairs = os.path.join(imageclef_data_path, 'Imageclef2022_dataset_all.csv')
+        clef_df = pd.read_csv(imageclef_image_captions_pairs, sep='\t')
+        captions = dict( zip( clef_df.ID.to_list(), clef_df.caption.to_list() ) )
+        
+            
+        encoder = self.parser.parse_args().image_encoder
+        
+        image_encoded_vectors_path = os.path.join(imageclef_data_path, f"{encoder}.pkl")
+
+        image_vecs = load_encoded_vecs(image_encoded_vectors_path)
+        return image_vecs, captions
+    
     def __create_iu_xray_dataset(self, images:dict, captions:dict, tags:dict):
         iu_xray_dataset = IuXrayDataset(image_vectors=images, captions_data=captions, tags_data=tags)
         logging.info('IU-XRay dataset created.')
         logging.info(iu_xray_dataset)
         return iu_xray_dataset
     
+    def __create_imageCLEF_dataset(self, images:dict, captions:dict):
+        imageCLEF_dataset = ImageCLEFDataset(image_vectors=images, captions_data=captions)
+        logging.info('ImageCLEF dataset created.')
+        logging.info(imageCLEF_dataset)
+        return imageCLEF_dataset
+    
     def train_cnn_rnn(self, dataset):
+        which_dataset = self.parser.parse_args().dataset
         epochs = self.parser.parse_args().epochs
         encoder = self.parser.parse_args().image_encoder
         max_length = self.parser.parse_args().max_length
@@ -144,7 +166,7 @@ class DiagnosticCaptioning:
         make_dir(saved_dir)
         
         _, tokenizer, word2idx, idx2word = dataset.get_tokenizer_utils()
-        model_name = f'iuxray_enc{encoder}_epochs{epochs}_maxlen{max_length}_embed{embedding_dim}_lingmodel{ling_model}_multimodal{multi_modal}'
+        model_name = f'{which_dataset}_enc{encoder}_epochs{epochs}_maxlen{max_length}_embed{embedding_dim}_lingmodel{ling_model}_multimodal{multi_modal}'
         saved_model_name = os.path.join(saved_dir, model_name)
         logging.info(f'CNN-RNN model will be saved at: {saved_model_name}.h5')
         SnT = CNN_RNN(tokenizer=tokenizer, word_to_idx=word2idx, 
@@ -154,50 +176,70 @@ class DiagnosticCaptioning:
         logging.info(f'Utilized vocabulary contains {SnT.vocab_size} words!')
                 
         train, dev, test = dataset.get_splits_sets()
-        all_tags = dict(train[2], **dev[2])
-        all_tags = dict(all_tags, **test[2])
-        print('TAGS:', len(all_tags))
-        tags_patient_pair = SnT.build_multimodal_encoder(all_tags)
-        train_tags = {
-                key:value for key,value in tags_patient_pair.items() if key in train[1].keys()
-        }   
-           
-            
-        dev_tags = {
-                key:value for key,value in tags_patient_pair.items() if key in dev[1].keys()
-        }    
         
-        train_data = [train[0], train[1], train_tags]
+        if which_dataset == 'iu_xray':
+            all_tags = dict(train[2], **dev[2])
+            all_tags = dict(all_tags, **test[2])
+            print('TAGS:', len(all_tags))
+            tags_patient_pair = SnT.build_multimodal_encoder(all_tags)
+            train_tags = {
+                    key:value for key,value in tags_patient_pair.items() if key in train[1].keys()
+            }   
+            
+                
+            dev_tags = {
+                    key:value for key,value in tags_patient_pair.items() if key in dev[1].keys()
+            }    
+            
+            train_data = [train[0], train[1], train_tags]
+        else:
+            train_data = [train[0], train[1]]
                            
         optimizer = tensorflow.keras.optimizers.Adam()
-        image_input_shape = list(train[0].values())[0][0].shape[1]
+        image_input_shape = list(train[0].values())[0].shape[1]
         if multi_modal:
             info = 'multi-modal'
         else:
             info = 'cross-modal'
         logging.info(f'Start training of the {info} CNN-RNN model.')
-        trained_model = SnT.train_iuxray_model(train_data=train_data, 
-                                                input_shape=(image_input_shape,), 
-                                                optimizer=optimizer, 
-                                                model_name=saved_model_name, 
-                                                n_epochs=epochs, 
-                                                batch_size=batch_size)
+        if which_dataset == 'iu_xray':
+            trained_model = SnT.train_iuxray_model(train_data=train_data, 
+                                                    input_shape=(image_input_shape,), 
+                                                    optimizer=optimizer, 
+                                                    model_name=saved_model_name, 
+                                                    n_epochs=epochs, 
+                                                    batch_size=batch_size)
+        else:
+            trained_model = SnT.train_imageclef_model(train_data=train_data, 
+                                                    input_shape=(image_input_shape,), 
+                                                    optimizer=optimizer, 
+                                                    model_name=saved_model_name, 
+                                                    n_epochs=epochs, 
+                                                    batch_size=batch_size)
         return SnT, trained_model
     
     def eval_cnn_rnn(self, cnn_rnn:CNN_RNN, model_to_eval, dataset):
-        generate_choice = self.parser.parse_args().sample_choise
+        generate_choice = self.parser.parse_args().sample_method
+        which_dataset = self.parser.parse_args().dataset
         
         # fetch dev, test set
         _, dev, test = dataset.get_splits_sets()
         
         # first evaluate our model in validation set
-        gold, predicted = cnn_rnn.evaluate_iuxray_model(model=model_to_eval, 
-                                                        test_captions=dev[1], 
-                                                        test_images=dev[0], 
-                                                        test_tags=dev[2], 
-                                                        evaluator_choice=generate_choice)
-        dev_gold_path = os.path.join(RESULTS_PATH, 'cnn_rnn/dev_gold.csv')
-        dev_pred_path = os.path.join(RESULTS_PATH, 'cnn_rnn/dev_pred.csv')
+        if which_dataset == 'iu_xray':
+            gold, predicted = cnn_rnn.evaluate_model(model=model_to_eval, 
+                                                            test_captions=dev[1], 
+                                                            test_images=dev[0], 
+                                                            test_tags=dev[2], 
+                                                            evaluator_choice=generate_choice)
+        else:
+            gold, predicted = cnn_rnn.evaluate_model(model=model_to_eval, 
+                                                            test_captions=dev[1], 
+                                                            test_images=dev[0], 
+                                                            test_tags=None, 
+                                                            evaluator_choice=generate_choice)
+        dev_gold_path = os.path.join(RESULTS_PATH, 'dev_gold.csv')
+        dev_pred_path = os.path.join(RESULTS_PATH, 'dev_pred.csv')
             
         df_gold = pd.DataFrame.from_dict(gold, orient="index")
         df_gold.to_csv(dev_gold_path, sep='|', header=False)
@@ -210,13 +252,22 @@ class DiagnosticCaptioning:
         pprint(scores)
         
         # Now evaluate our model in test set
-        gold, predicted = cnn_rnn.evaluate_iuxray_model(model=model_to_eval, 
-                                                        test_captions=test[1], 
-                                                        test_images=test[0], 
-                                                        test_tags=test[2], 
-                                                        evaluator_choice=generate_choice)
-        dev_gold_path = os.path.join(RESULTS_PATH, 'cnn_rnn/test_gold.csv')
-        dev_pred_path = os.path.join(RESULTS_PATH, 'cnn_rnn/test_pred.csv')
+        if which_dataset == 'iu_xray':
+            gold, predicted = cnn_rnn.evaluate_model(model=model_to_eval, 
+                                                            test_captions=test[1], 
+                                                            test_images=test[0], 
+                                                            test_tags=test[2],
+                                                            eval_dataset=which_dataset,
+                                                            evaluator_choice=generate_choice)
+        else:
+            gold, predicted = cnn_rnn.evaluate_model(model=model_to_eval, 
+                                                            test_captions=test[1], 
+                                                            test_images=test[0], 
+                                                            test_tags=None,
+                                                            eval_dataset=which_dataset, 
+                                                            evaluator_choice=generate_choice)
+        dev_gold_path = os.path.join(RESULTS_PATH, 'test_gold.csv')
+        dev_pred_path = os.path.join(RESULTS_PATH, 'test_pred.csv')
             
         df_gold = pd.DataFrame.from_dict(gold, orient="index")
         df_gold.to_csv(dev_gold_path, sep='|', header=False)
@@ -246,7 +297,18 @@ class DiagnosticCaptioning:
                 
                 # Evaluate in model in Validation and Test set
                 self.eval_cnn_rnn(cnn_rnn=cnn_rnn, model_to_eval=trained_model, dataset=iu_xray_dataset)
+        else:
+            image_vecs, captions = self.__load_imageclef_data()
+            imageCLEF_dataset = self.__create_imageCLEF_dataset(image_vecs, captions)
+            
+            
+            if employed_model == 'cnn_rnn':
                 
+                # Train CNN-RNN model
+                cnn_rnn, trained_model = self.train_cnn_rnn(dataset=imageCLEF_dataset)
+                
+                # Evaluate in model in Validation and Test set
+                self.eval_cnn_rnn(cnn_rnn=cnn_rnn, model_to_eval=trained_model, dataset=imageCLEF_dataset)
                 
 
     def main(self):
