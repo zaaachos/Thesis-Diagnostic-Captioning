@@ -5,5 +5,5 @@
 	path = SOTA_models/R2Gen
 	url = https://github.com/zhjohnchan/R2Gen
 [submodule "VisualGPT"]
-	path = VisualGPT
+	path = SOTA_models/VisualGPT
 	url = https://github.com/Vision-CAIR/VisualGPT
