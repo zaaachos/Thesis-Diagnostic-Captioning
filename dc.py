@@ -61,6 +61,7 @@ class DiagnosticCaptioning:
 
         # Employing model
         self.parser.add_argument("--model_choice", type=str, default="cnn_rnn", choices=["cnn_rnn", "knn"], help="Which model to employ for testing.")
+        self.parser.add_argument("--k", type=int, default=5, help="k for K-NN")
         
         # Captions settings
         self.parser.add_argument("--max_length", type=int, default=40, help="the maximum sequence length of the reports.")
@@ -297,6 +298,12 @@ class DiagnosticCaptioning:
                 
                 # Evaluate in model in Validation and Test set
                 self.eval_cnn_rnn(cnn_rnn=cnn_rnn, model_to_eval=trained_model, dataset=iu_xray_dataset)
+            else:
+                k = self.parser.parse_args().k
+                multi_modal = self.parser.parse_args().multi_modal
+                kNN = KNN(dataset=iu_xray_dataset, k=k, similarity_function='cosine', text_model='clinical_bert')
+                results_path = os.path.join(RESULTS_PATH, 'iuxray_{k}-NN_test_captions.csv')
+                kNN.run_algo(multi_modal = multi_modal, results_dir_path=results_path)
         else:
             image_vecs, captions = self.__load_imageclef_data()
             imageCLEF_dataset = self.__create_imageCLEF_dataset(image_vecs, captions)
@@ -309,6 +316,11 @@ class DiagnosticCaptioning:
                 
                 # Evaluate in model in Validation and Test set
                 self.eval_cnn_rnn(cnn_rnn=cnn_rnn, model_to_eval=trained_model, dataset=imageCLEF_dataset)
+            else:
+                k = self.parser.parse_args().k
+                kNN = KNN(dataset=imageCLEF_dataset, k=k, similarity_function='cosine', text_model='clinical_bert')
+                results_path = os.path.join(RESULTS_PATH, 'imageclef_{k}-NN_test_captions.csv')
+                kNN.run_algo(results_dir_path=results_path)
                 
 
     def main(self):
