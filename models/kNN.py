@@ -101,7 +101,7 @@ class KNN:
         
         return raw_train, raw_test
         
-    def run_algo(self, multi_modal:bool=False, results_dir_path:str):
+    def run_algo(self, multi_modal:bool=False, results_dir_path:str='results'):
         
         if isinstance(self.text_model_emb, TfidfVectorizer):
             self.text_model_emb.fit(list(self.train_data[1].values()))
