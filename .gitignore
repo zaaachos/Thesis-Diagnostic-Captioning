@@ -132,6 +132,3 @@ dmypy.json
 *.png
 *.jpeg
 *.jpg
-
-# folders
-dataset/

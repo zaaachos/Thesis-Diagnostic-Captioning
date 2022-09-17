@@ -101,7 +101,7 @@ class KNN:
         
         return raw_train, raw_test
         
-    def run_algo(self, multi_modal:bool=False):
+    def run_algo(self, multi_modal:bool=False, results_dir_path:str):
         
         if isinstance(self.text_model_emb, TfidfVectorizer):
             self.text_model_emb.fit(list(self.train_data[1].values()))
@@ -125,7 +125,7 @@ class KNN:
             topKcaptions = [self.train_data[1][train_ids[topk[i]]] for i in range(self.K)]
             sim_test_results[test_ids[i]] = self.__find_similar_caption(closer_captions=topKcaptions)
 
-        self.__save_results(similarities_results=sim_test_results, dir_path='g')
+        self.__save_results(similarities_results=sim_test_results, dir_path=results_dir_path)
         
     def ensemble(self, kNN_csvs_paths_list:list):
         models_dfs = [pd.read_csv(csv, sep='|', names=['ID', 'caption'])
@@ -140,7 +140,7 @@ class KNN:
             current_captions_per_model = [models_ids_captions_pairs[i][test_id] for i in range(len(models_ids_captions_pairs))]
             sim_test_results[test_id] = self.__find_similar_caption(closer_captions=current_captions_per_model, ensemble_mode=True)
         
-        self.__save_results(similarities_results=sim_test_results, dir_path='g')
+        self.__save_results(similarities_results=sim_test_results, dir_path='')
     
     def kNN_tuning(self, multi_modal:bool=False):
         tuning_cap = self.K
