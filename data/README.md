@@ -1,5 +1,5 @@
 ## IU X-Ray dataset
-The employed data for IU X-Ray dataset can be found in this [drive link](https://drive.google.com/drive/folders/147hav9_PfmCrpJtJOKwsOn9e24j2lSRH?usp=sharing). Download the dataset (i.e. IU X-Ray) and store it to the `data` directory
+The employed data for IU X-Ray dataset can be found in this [drive link](https://drive.google.com/drive/folders/147hav9_PfmCrpJtJOKwsOn9e24j2lSRH?usp=sharing). Download the dataset (i.e. IU X-Ray) and store it to the `data` directory. Image Vectors were computed offline. Only DenseNet-121 and EfficientNetB0 are provided due to the fact that these image encoders performed better in preliminary experiments.
 
 *You have to have something like this*:
 ```
