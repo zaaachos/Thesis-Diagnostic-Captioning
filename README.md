@@ -10,10 +10,26 @@ Recent years have witnessed an increase in studies associated with image caption
 To be added..
 
 ## Enviroment setup
-To be added..
+If you have GPU installed on your system, it is highly suggested to use conda as your virtual enviroment to run code. You can download conda from [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+
+After the installation is completed, open a terminal inside this project and run the following commands, to setup conda enviroment. The latter will be compatible with Tensorflow.
+  1. conda create --name tf_gpu
+  2. activate tf_gpu
+  3. conda install tensorflow-gpu
+  4. pip install -r requirements.txt
+
 
 ## Instructions
-To be added..
+Follow the aforementioned steps to use conda and run the following command, to train my implemented methods (i.e. CNN-RNN, kNN)
+```py
+python3 dc.py
+```
+
+For arguments passing, run the following command in order to watch the available args.
+```py
+python3 dc.py -h
+```
+   
 
 ## License
 [MIT License](https://github.com/zaaachos/bsc-thesis-in-diagnostic-captioning/blob/main/LICENSE)
