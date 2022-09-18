@@ -45,7 +45,8 @@ For arguments passing, run the following command in order to watch the available
 ```py
 python3 dc.py -h
 ```
-   
+
+For **SOTA_models** please follow the instructions given by each author in their repo.
 
 ## License
 [MIT License](https://github.com/zaaachos/bsc-thesis-in-diagnostic-captioning/blob/main/LICENSE)
