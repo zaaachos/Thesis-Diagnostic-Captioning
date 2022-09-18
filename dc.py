@@ -197,13 +197,9 @@ class DiagnosticCaptioning:
             train_data = [train[0], train[1]]
                            
         optimizer = tensorflow.keras.optimizers.Adam()
-        image_input_shape = list(train[0].values())[0].shape[1]
-        if multi_modal:
-            info = 'multi-modal'
-        else:
-            info = 'cross-modal'
-        logging.info(f'Start training of the {info} CNN-RNN model.')
+        
         if which_dataset == 'iu_xray':
+            image_input_shape = list(train[0].values())[0][0].shape[1]
             trained_model = SnT.train_iuxray_model(train_data=train_data, 
                                                     input_shape=(image_input_shape,), 
                                                     optimizer=optimizer, 
@@ -211,6 +207,7 @@ class DiagnosticCaptioning:
                                                     n_epochs=epochs, 
                                                     batch_size=batch_size)
         else:
+            image_input_shape = list(train[0].values())[0].shape[1]
             trained_model = SnT.train_imageclef_model(train_data=train_data, 
                                                     input_shape=(image_input_shape,), 
                                                     optimizer=optimizer, 

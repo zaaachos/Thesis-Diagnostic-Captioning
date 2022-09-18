@@ -122,10 +122,8 @@ class CNN_RNN:
         tag_patient_pair, _, word_index = self.__tokenize_tags(tags, max_tags, max_sequence_length)
     
         embedding_dim = fasttext_embed.shape[1]
-        print(embedding_dim, max_tags, max_sequence_length, self.max_length)
         
         embedding_matrix = self.__make_multimodal_weights(fasttext_embed, fasttext_word_to_index, max_tags, embedding_dim, word_index)
-        print(embedding_matrix)
         
         self.tag_encoder = TagEncoder(
                 pretrained=True,
@@ -231,7 +229,7 @@ class CNN_RNN:
 
         # integer encode the description
         seq = self.tokenizer.texts_to_sequences([caption])[0]
-        logging.info(seq)
+        
         # split one sequence into multiple X,y pairs
         for i in range(1, len(seq)):
             # select
@@ -501,7 +499,7 @@ class CNN_RNN:
 
     def remove_basic_tokens(self, caption):
         caption = caption.replace(self.start_token, " ").replace(
-            self.end_token, " ").replace("<pad>", " ").replace("<unk>", " ")
+            self.end_token, " ").replace("<pad>", " ").replace("<unk>", " ").replace(self.seq_sep, '. ')
         return caption
 
 
