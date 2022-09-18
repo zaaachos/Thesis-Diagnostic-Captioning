@@ -17,3 +17,11 @@ The employed data for IU X-Ray dataset can be found in this [drive link](https:/
 
 ## Preprocess I followed
 IU X-Ray contains 3,955 patients with the majority of them having two images (Frontal and Lateral view). Thus, we decided to keep the patients who have exactly two images for our research to keep the consistency with other SOTA models on the IU X-Ray dataset (e.g., R2GenCMN). As a result, following pre-processing, 3,195 patients (or 6,390 chest x-ray images) were retained for the dataset.
+
+We followed the next splits:
+| Info | Train | Val | Test |
+| --- | --- | --- | --- |
+| split size | 80% | 5% | 15% |
+| # Images | 4,890 | 542 | 958 |
+| # Reports | 2,445 | 271 | 479 |
+| # Patients | 2,445 | 271 | 479 |
