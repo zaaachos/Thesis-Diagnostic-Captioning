@@ -34,7 +34,10 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 import numpy as np
-import pickle 
+import pickle
+
+MODELS_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+TAGS_EMBEDDINGS_PATH = os.path.join(os.path.dirname(MODELS_DIR_PATH), 'data')
 
 # this class is based on the Show and Tell model.
 class CNN_RNN:
@@ -70,8 +73,10 @@ class CNN_RNN:
         
     
     def __load_embeddings(self):
-        fasttext_embed = np.load('/home/cave-of-time/panthro/dataset/fasttext.npy')
-        fasttext_word_to_index = pickle.load(open('/home/cave-of-time/panthro/dataset/fasttext_voc.pkl', 'rb'))
+        npy_file = os.path.join(TAGS_EMBEDDINGS_PATH, 'fasttext.npy')
+        fastttext_voc_file = os.path.join(TAGS_EMBEDDINGS_PATH, 'fasttext_voc.pkl')
+        fasttext_embed = np.load(npy_file)
+        fasttext_word_to_index = pickle.load(open(fastttext_voc_file, 'rb'))
         return fasttext_embed, fasttext_word_to_index
     
     def __make_multimodal_weights(self, fasttext_embed, fasttext_word_to_index, max_tags, embedding_dim, word_index):
