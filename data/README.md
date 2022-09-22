@@ -26,5 +26,6 @@ We followed the next splits:
 | # Reports | 2,445 | 271 | 479 |
 | # Patients | 2,445 | 271 | 479 |
 
-## Example image of a patient in IU X-Ray dataset
+## Example report from the IU X-Ray dataset.
+A random patient from IU X-Ray dataset (with its frontal and lateral radiology images) along with its report. For our task, we used the Findings section as the caption and for multi-modal purposes we utilised the System Tags as tag input. Every other section was excluded.
 ![Test Image 3](example/patient.jpg)
