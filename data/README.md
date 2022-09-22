@@ -25,3 +25,6 @@ We followed the next splits:
 | # Images | 4,890 | 542 | 958 |
 | # Reports | 2,445 | 271 | 479 |
 | # Patients | 2,445 | 271 | 479 |
+
+## Example image of a patient in IU X-Ray dataset
+![Test Image 3](example\patient.jpg)

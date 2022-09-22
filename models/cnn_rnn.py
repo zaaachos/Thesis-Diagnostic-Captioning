@@ -46,12 +46,14 @@ from utils.text_handler import TextHandler
 MODELS_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 TAGS_EMBEDDINGS_PATH = os.path.join(os.path.dirname(MODELS_DIR_PATH), 'data')
 
-# this class is based on the Show and Tell model. However, unlike the Show and Tell, the image is given in each time step to the Decoder module.
-# Acknowledgements: Part of this code is based on https://machinelearningmastery.com/develop-a-caption-generation-model-in-keras/
+
 class CNN_RNN:
     def __init__(self, tokenizer:Tokenizer, word_to_idx:dict, idx_to_word:dict, max_length: int, embedding_dim: int, 
     ling_model: str, multi_modal: bool, loss="categorical_crossentropy"):
-        """_summary_
+        """ This class is based on the Show and Tell model. However, unlike the Show and Tell, the image is given in each time step to the Decoder module.
+            Acknowledgements: Part of this code is based on https://machinelearningmastery.com/develop-a-caption-generation-model-in-keras/
+            It is also worth emphasising that out of 10 teams, I managed to rank 2nd on the primary evaluation metric using this CNN-RNN architecture!
+            More details can be found at my thesis paper as well as AUEB's NLP Group publication (http://ceur-ws.org/Vol-3180/paper-101.pdf)
 
         Args:
             tokenizer (Tokenizer): The Keras Tokenizer that was fitted on the training captions to create the Vocabulary.
@@ -291,7 +293,7 @@ class CNN_RNN:
         photo	startseq, little, girl, running, 			in
         photo	startseq, little, girl, running, in, 		field
         photo	startseq, little, girl, running, in, field, endseq
-        
+
 
         Args:
             caption (str): Current caption to be used to create image, caption (words) pairs
