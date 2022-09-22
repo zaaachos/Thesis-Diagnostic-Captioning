@@ -7,7 +7,6 @@ filelock==3.6.0
 h5py==3.6.0
 inflect==6.0.0
 joblib==1.1.0
-keras_cv_attention_models==1.2.11
 matplotlib==3.5.1
 nltk==3.7
 numpy==1.21.5
@@ -23,7 +22,6 @@ rouge_score==0.1.2
 scikit_learn==1.1.2
 scipy==1.7.3
 scispacy==0.5.1
-sentence_transformers==2.2.0
 six==1.16.0
 spacy==3.4.1
 tensorflow==2.6.0

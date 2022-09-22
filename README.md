@@ -13,11 +13,22 @@ As mentioned in the `Abstract` section, I participated in ImageCLEFmedical 2022 
 If you have GPU installed on your system, it is highly suggested to use conda as your virtual enviroment to run code. You can download conda from [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
 
 After the installation is completed, open a terminal inside this project and run the following commands, to setup conda enviroment. The latter will be compatible with Tensorflow.
+```
   1. conda create --name tf_gpu
   2. activate tf_gpu
   3. conda install tensorflow-gpu
   4. pip install -r requirements.txt
+```
 
+If you decide to use **ClinicalBERT** as the main text embeddings extraction model, you have to execute the `dc.py` in Pytorch-based enviroment. Thus, follow the next steps:
+After the installation is completed, open a terminal inside this project and run the following commands, to setup conda enviroment. The latter will be compatible with Tensorflow.
+```
+  1. conda create --name torch_gpu
+  2. activate torch_gpu
+  3. conda install torch-gpu
+  4. pip install -r requirements.txt
+```
+Then comment-out the imports from `models/__init__.py` and `models/kNN.py`
 
 ## Instructions
 Go to [Datasets](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/main/data), download the dataset (i.e. IU X-Ray) and store it to the `data` directory

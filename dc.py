@@ -25,7 +25,6 @@ from tqdm import tqdm
 import numpy as np
 import random
 from pprint import pprint
-# from evaluator import *
 
 import json
 from utils.dataset import IuXrayDataset, ImageCLEFDataset
