@@ -31,3 +31,4 @@ torchvision==0.12.0
 tqdm==4.63.0
 transformers==4.18.0
 updown==0.1.0
+keras-cv-attention-models==1.0.19

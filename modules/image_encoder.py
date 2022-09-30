@@ -1,3 +1,9 @@
+
+import os
+import numpy as np
+from tqdm import tqdm
+import pickle
+
 import tensorflow
 
 from tensorflow.keras.applications.densenet import DenseNet201 as dn201
@@ -14,16 +20,13 @@ from tensorflow.keras.applications.efficientnet import preprocess_input as effic
 from tensorflow.keras.applications.resnet_v2 import preprocess_input as resnet_preprocess
 from tensorflow.keras.applications.inception_resnet_v2 import preprocess_input as inceptionresnet_preprocess
 
-from tensorflow.keras import Sequential
+
 from tensorflow.keras.layers import Flatten, Dropout, Dense, Conv2D, MaxPooling2D, BatchNormalization
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing import image as img
-import os
-import numpy as np
-from tqdm import tqdm
-import pickle
 
-# from keras_cv_attention_models import cotnet
+
+from keras_cv_attention_models import cotnet
 
 
 def load_encoded_vecs(self, filename):
