@@ -1,7 +1,8 @@
-from lib2to3.pgen2.token import tok_name
+# numpy import
 import numpy as np
-import tensorflow as tf
 
+# tensorflow imports
+import tensorflow as tf
 import tensorflow
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.models import Model
@@ -66,11 +67,12 @@ class BeamSearch:
         start = [self.get_idx(self.start_token)]
         start_word = [[start, 0.0]]
         while len(start_word[0][0]) < self.max_length:
+            # store current word,probs pairs
             temp = []
+            # for current sequence
             for s in start_word:
-                par_caps = tf.keras.preprocessing.sequence.pad_sequences(
-                    [s[0]], maxlen=self.max_length, padding="post"
-                )
+                # pad the sequence in order to fetch the next token
+                par_caps = tf.keras.preprocessing.sequence.pad_sequences([s[0]], maxlen=self.max_length, padding="post")
                 if multi_modal:
                     if dataset == 'iuxray':
                         preds = model.predict(
@@ -84,7 +86,7 @@ class BeamSearch:
                             [image[0], image[1], par_caps], verbose=0)
                     else:
                         preds = model.predict([image, par_caps], verbose=0)
-
+                # get the best paths
                 word_preds = np.argsort(preds[0])[-self.beam_index:]
 
                 # Getting the top <self.self.beam_index>(n) predictions and creating a
@@ -101,6 +103,7 @@ class BeamSearch:
             # Getting the top words
             start_word = start_word[-self.beam_index:]
 
+        # get the best path
         start_word = start_word[-1][0]
         intermediate_caption = [self.get_word(i) for i in start_word]
         final_caption = []
@@ -128,12 +131,16 @@ class BeamSearch:
         start = [self.get_idx(self.start_token)]
         start_word = [[start, 0.0]]
         while len(start_word[0][0]) < self.max_length:
-
+            # for current seq
             for s in start_word:
+                # pad current caption
                 current_caption = tf.keras.preprocessing.sequence.pad_sequences([s[0]], maxlen=self.max_length, padding="post")
+                # get all predictions from the pre-trained models
                 ensemble_predictions = [ ensemble_member.predict([image, current_caption], verbose=0) for ensemble_member, image in zip(models, images_list) ]
+                # get the best pairs
                 ensemble_word_predictions = [ np.argsort(prediction[0])[-self.beam_index:] for prediction in ensemble_predictions ]
 
+                # and store them with word,pairs for each ensemble member
                 ensemble_current_probs = list()
                 for member_prediction, member_word_predictions in zip(ensemble_predictions, ensemble_word_predictions):
                     temp_current_seq = list()
@@ -145,7 +152,7 @@ class BeamSearch:
                         temp_current_seq.append([next_cap, prob])
 
                     ensemble_current_probs.append(temp_current_seq)
-            
+            # get all the best candidates
             ensemble_starting_words = [
                 sorted(current_probs, reverse=False, key=lambda l: l[1])[-self.beam_index:] for current_probs in ensemble_current_probs
             ]
@@ -153,6 +160,7 @@ class BeamSearch:
             start_words = [member_starting_words[-1] for member_starting_words in ensemble_starting_words]
             start_word = sorted(start_words, reverse=False, key=lambda l: l[1])
 
+        # create the caption
         start_word = start_word[-1][0]
         intermediate_caption = [self.get_word(i) for i in start_word]
         final_caption = []
