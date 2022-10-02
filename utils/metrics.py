@@ -1,8 +1,9 @@
 import pandas as pd
 import pandas as pd
-from pycocoevalcap.bleu.bleu import Bleu
-from pycocoevalcap.meteor import Meteor
-from pycocoevalcap.rouge import Rouge
+
+from .pycocoevalcap.bleu.bleu import Bleu
+from .pycocoevalcap.meteor import Meteor
+from .pycocoevalcap.rouge import Rouge
 import pickle
 
 import csv
