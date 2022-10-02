@@ -15,7 +15,6 @@ from tqdm import tqdm
 # utils imports
 from utils.text_handler import TextHandler
 from utils.vocabulary import Vocabulary
-from utils.jsonfy import *
 
 
 

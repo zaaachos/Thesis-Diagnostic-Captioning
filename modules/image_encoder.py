@@ -29,7 +29,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing import image as img
 
 # cotnet import
-from keras_cv_attention_models import cotnet
+# from keras_cv_attention_models import cotnet
 
 
 def load_encoded_vecs(filename:str) -> dict:
