@@ -5,4 +5,5 @@ python3 dc.py \
 --max_length 40 \
 --image_encoder densenet121 \
 --n_gpu 1 \
---dropout 0.2
+--dropout 0.2 \
+--multi_modal

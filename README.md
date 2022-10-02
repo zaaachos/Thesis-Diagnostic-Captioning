@@ -48,10 +48,10 @@ Go to [Datasets](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/m
 ```
 ## Execution Instructions
 ### Disclaimer
-Throughout my research on this Thesis, I experimented with models that had state-of-the-art performance (SOTA) on several biomedical datasets (like IU X-Ray, MIMIC III. etc.). These models are provided in `SOTA_models` directory as submodules repos. I do not provide any additional data loaders, which I created for this models. Thus, if you want to further experiment with these models, please do so according to the guidelines provided in each of these repositories.
+Throughout my research on this Thesis, I experimented with models that had state-of-the-art performance (SOTA) on several biomedical datasets (like IU X-Ray, MIMIC III. etc.). These models are provided in `SOTA_models` directory as submodules repos. More details about each model are provided on my Thesis paper. I do not provide any additional data loaders, which I created for this models. Thus, if you want to further experiment with these models, please do so according to the guidelines provided in each of these repositories.
 
 ### Main applications
-Follow the aforementioned steps to use conda and run the following command, to train my implemented methods (i.e. CNN-RNN, kNN)
+Follow the aforementioned steps to use conda and run the following command, to train my implemented methods (i.e. CNN-RNN, kNN). Default arguments are set.
 ```py
 python3 dc.py
 ```
@@ -60,6 +60,14 @@ For arguments passing, run the following command in order to watch the available
 ```py
 python3 dc.py -h
 ```
+
+### Particular training procedures
+It is suggested to use a Unix-like OS (like Linux) to execute the following specific processes or using WSL in Windows OS.
+* Cross-modal CNN-RNN: `bash cross_modal_cnn_rnn.sh`
+* Multi-modal CNN-RNN: `bash multi_modal_cnn_rnn.sh`
+* Cross-modal k-NN: `bash cross_modal_kNN.sh`
+* Multi-modal CNN-RNN: `bash multi_modal_kNN.sh`
+  
 
 ## License
 [MIT License](https://github.com/zaaachos/bsc-thesis-in-diagnostic-captioning/blob/main/LICENSE)
