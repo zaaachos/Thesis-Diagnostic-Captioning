@@ -1,0 +1,11 @@
+python3 dc.py \
+---dataset iu_xray \
+--model_choice cnn_rnn \
+--max_length 40 \
+--image_encoder efficientnet0 \
+--sample_method greedy \
+--batch_size 4 \
+--n_gpu 1 \
+--epochs 50 \
+--dropout 0.2 \
+--multi_modal
