@@ -6,8 +6,6 @@
 ## Abstract
 Recent years have witnessed an increase in studies associated with image captioning, but little of that knowledge has been utilised in the biomedical field. This thesis addresses medical image captioning, referred as Diagnostic Captioning (DC), the task of assisting medical experts in diagnosis/report drafting. We present deep learning uni-modal, cross-modal and multi-modal methods that aim to generate a representative ``diagnostic text'' for a given medical image. The multi-modal approaches, utilise the radiology concepts (tags) used by clinicians to describe a patient's image (e.g., X-Ray, CT scan, etc.) as an additional input data. These methods, have not been adequately applied to biomedical research. We also experimented with a novel technique that utilises the captions generated from all the systems implemented as part of this thesis. Lastly, this thesis concerns the participation of AUEB's NLP Group, with the author being the main driver, on the 2022 ImageCLEFmedical Caption Prediction task. Out of 10 teams, our team came in second based on the primary evaluation metric, using an encoder-decoder approach, and first based on the secondary metric, utilising an ensemble technique applied on our generated captions. More about our paper can be found [here](http://ceur-ws.org/Vol-3180/paper-101.pdf)
 
-## Datasets
-As mentioned in the `Abstract` section, I participated in ImageCLEFmedical 2022 Caption Prediction task. The code also handles ImageCLEF dataset but the latter as well as evaluation measures are not provided, due to the fact that we, as a group, signed an End User Agreement. Thus, only the IU X-Ray dataset is available and can be downloaded by redirecting [here](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/main/data) in `data` directory.
 
 ## Enviroment setup
 If you have GPU installed on your system, it is highly suggested to use conda as your virtual enviroment to run code. You can download conda from [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
@@ -30,7 +28,7 @@ If you decide to use **ClinicalBERT** as the main text embeddings extraction mod
 Now, your environment will be compatible with Pytorch. Then comment-out the imports from `models/__init__.py` and `models/kNN.py`
 
 ## Dataset Instructions
-Go to [Datasets](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/main/data), download the dataset (i.e. IU X-Ray) and store it to the `data` directory
+As mentioned in the `Abstract` section, I participated in ImageCLEFmedical 2022 Caption Prediction task. The code also handles ImageCLEF dataset, but the latter as well as evaluation measures are not provided, due to the fact that we, as a group, signed an End User Agreement. Thus, only the IU X-Ray dataset is available. Go to [Datasets](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/main/data), download the dataset (i.e. IU X-Ray) and store it to the `data` directory
 
 *You have to have something like this*:
 ```
@@ -45,6 +43,7 @@ Go to [Datasets](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/m
 |   ├──fasttext_voc.pkl
 |   └──fasttext.npy
 ```
+
 ## Execution Instructions
 ### Disclaimer
 Throughout my research on this Thesis, I experimented with models that had state-of-the-art performance (SOTA) on several biomedical datasets (like IU X-Ray, MIMIC III. etc.). These models are provided in `SOTA_models` directory as submodules repos. More details about each model are provided on my Thesis paper. I do not provide any additional data loaders, which I created for this models. Thus, if you want to further experiment with these models, please do so according to the guidelines provided in each of these repositories.
