@@ -21,14 +21,13 @@ After the installation is completed, open a terminal inside this project and run
 ```
 
 If you decide to use **ClinicalBERT** as the main text embeddings extraction model, you have to execute the `dc.py` in Pytorch-based enviroment. Thus, follow the next steps:
-After the installation is completed, open a terminal inside this project and run the following commands, to setup conda enviroment. The latter will be compatible with Tensorflow.
 ```
   1. conda create --name torch_gpu
   2. activate torch_gpu
   3. conda install torch-gpu
   4. pip install -r requirements.txt
 ```
-Then comment-out the imports from `models/__init__.py` and `models/kNN.py`
+Now, your environment will be compatible with Pytorch. Then comment-out the imports from `models/__init__.py` and `models/kNN.py`
 
 ## Dataset Instructions
 Go to [Datasets](https://github.com/zaaachos/Thesis-Diagnostic-Captioning/tree/main/data), download the dataset (i.e. IU X-Ray) and store it to the `data` directory
