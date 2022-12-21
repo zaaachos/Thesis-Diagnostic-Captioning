@@ -65,7 +65,17 @@ It is suggested to use a Unix-like OS (like Linux) to execute the following spec
 * Multi-modal CNN-RNN: `bash multi_modal_cnn_rnn.sh`
 * Cross-modal k-NN: `bash cross_modal_kNN.sh`
 * Multi-modal CNN-RNN: `bash multi_modal_kNN.sh`
-  
+
+## Citations
+If you use or extend my work, please cite my paper.
+```
+@unpublished{Zachariadis2022,
+  author = "G. Zachariadis",
+  title = "Exploring Uni-modal, Cross-modal, and Multi-modal Diagnostic Captioning",
+  year = "2022",
+  note = "B.Sc. thesis, Department of Informatics, Athens University of Economics and Business}
+}
+```
 
 ## License
 [MIT License](https://github.com/zaaachos/bsc-thesis-in-diagnostic-captioning/blob/main/LICENSE)
