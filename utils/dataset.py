@@ -51,7 +51,8 @@ class Dataset:
                 filtered_data[image_id] = caption
 
         return filtered_data
-
+    
+    @staticmethod
     def build_splits(self) ->tuple[list, list, list]:
         """ This function makes the split sets for trainig, validation and test.
         In particulare, we followed the next splits:
@@ -79,7 +80,8 @@ class Dataset:
         )
 
         return train, dev, test
-
+    
+    @staticmethod
     def get_image_vectors(self, keys:list) -> dict:
         """ Fetches from the whole dataset the image embeddings according to the utilised set.
 
