@@ -77,5 +77,14 @@ If you use or extend my work, please cite my paper.
 }
 ```
 
+You can read our publication ***"AUEB NLP Group at ImageCLEFmedical Caption 2022", Proceedings of the CLEF 2022*** at this [link](https://ceur-ws.org/Vol-3180/paper-101.pdf). If you use or extend our work, please cite our paper:
+```
+@article{charalampakos2022aueb,
+  title={Aueb nlp group at imageclefmedical caption 2022},
+  author={Charalampakos, Foivos and Zachariadis, Giorgos and Pavlopoulos, John and Karatzas, Vasilis and Trakas, Christoforos and Androutsopoulos, Ion},
+  year={2022}
+}
+```
+
 ## License
 [MIT License](https://github.com/zaaachos/bsc-thesis-in-diagnostic-captioning/blob/main/LICENSE)
